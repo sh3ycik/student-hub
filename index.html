@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Hub</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div><h1 id="hello"></h1><p id="date"></p><p id="next"></p></div>
+  <div id="clock"></div>
+</header>
+<nav id="tabs">
+  <button data-tab="schedule" class="on">📅 Розклад</button>
+  <button data-tab="tasks">✅ Завдання</button>
+  <button data-tab="pomo">⏱ Таймер</button>
+  <button data-tab="grades">🎓 Оцінки</button>
+  <button data-tab="notes">📝 Нотатки</button>
+  <button data-tab="set">⚙️ Налаштування</button>
+</nav>
+<main>
+<section id="schedule" class="tab">
+  <div id="days"></div>
+  <ul id="lessons" class="list"></ul>
+  <form id="lf" class="card grid">
+    <h3>Додати / змінити пару</h3>
+    <input type="hidden" name="lid">
+    <input name="subj" placeholder="Предмет" required>
+    <input name="room" placeholder="Аудиторія">
+    <label>Початок <input type="time" name="s" value="08:30" required></label>
+    <label>Кінець <input type="time" name="e" value="09:50" required></label>
+    <label>Колір <input type="color" name="color" value="#6366f1"></label>
+    <div class="row"><button class="pri">Зберегти</button><button type="reset" class="ghost">Скасувати</button></div>
+  </form>
+</section>
+
+<section id="tasks" class="tab" hidden>
+  <form id="tf" class="card row">
+    <input name="t" placeholder="Нове завдання…" required>
+    <input type="date" name="d">
+    <select name="p"><option value="1">Звичайне</option><option value="2">Важливе</option><option value="3">Термінове</option></select>
+    <button class="pri">Додати</button>
+  </form>
+  <div class="row between"><div id="flt"><button data-f="all">Усі</button><button data-f="active">Активні</button><button data-f="done">Виконані</button></div><span id="tc"></span></div>
+  <div class="bar"><i id="tp"></i></div>
+  <ul id="tl" class="list"></ul>
+</section>
+
+<section id="pomo" class="tab" hidden>
+  <div class="card center">
+    <p id="pm"></p><div id="pt">25:00</div>
+    <div class="bar"><i id="pb"></i></div>
+    <div class="row"><button id="ps" class="pri">Старт</button><button id="pr" class="ghost">Скинути</button></div>
+    <p class="mut">Техніка Pomodoro: фокус на роботі, потім коротка перерва.</p>
+  </div>
+</section>
+
+<section id="grades" class="tab" hidden>
+  <form id="gf" class="card row">
+    <input name="subj" list="subs" placeholder="Предмет" required><datalist id="subs"></datalist>
+    <input type="number" name="g" min="1" max="12" placeholder="Оцінка 1–12" required>
+    <button class="pri">Додати</button>
+  </form>
+  <div class="card center">Середній бал: <b id="avg" class="big">—</b></div>
+  <table class="card"><tbody id="gl"></tbody></table>
+  <p class="mut">Натисніть на оцінку, щоб видалити її.</p>
+</section>
+
+<section id="notes" class="tab" hidden>
+  <button id="nadd" class="pri">+ Нова нотатка</button>
+  <div id="nl"></div>
+</section>
+
+<section id="set" class="tab" hidden>
+  <div class="card grid">
+    <h3>Вигляд</h3>
+    <label>Ваше ім’я <input id="name"></label>
+    <label>Тема
+      <select id="theme"><option value="auto">Авто</option><option value="light">Світла</option><option value="dark">Темна</option></select>
+    </label>
+    <label>Акцентний колір <input type="color" id="accent"></label>
+    <div id="sw"></div>
+    <h3>Таймер (хвилини)</h3>
+    <label>Робота <input type="number" id="pw" min="1" max="120"></label>
+    <label>Перерва <input type="number" id="pbk" min="1" max="60"></label>
+    <h3>Дані</h3>
+    <div class="row">
+      <button id="ex" class="ghost">⬇ Експорт</button>
+      <label class="ghost btn">⬆ Імпорт<input type="file" id="im" accept=".json" hidden></label>
+      <button id="rs" class="ghost danger">Скинути все</button>
+    </div>
+    <p class="mut">Усі дані зберігаються у вашому браузері (localStorage).</p>
+  </div>
+</section>
+</main>
+<script src="script.js"></script>
+</body>
+</html>
