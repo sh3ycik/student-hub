@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f4f1; --surface:#ffffff; --surface-2:#eceee9; --ink:#171a14; --muted:#6a6f64;
+  --line:#dcdfd7; --accent:#2f6df6; --accent-ink:#ffffff; --danger:#d23b3b; --ok:#2e9d62;
+  --radius:14px; color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#12130f; --surface:#1b1d17; --surface-2:#24271f; --ink:#eef0e8; --muted:#9aa093;
+  --line:#2f3329; --danger:#ff6b6b; --ok:#5fd394; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100%}
+.side{position:sticky;top:0;height:100vh;padding:24px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:6px;background:var(--surface)}
+.brand{font-weight:700;font-size:20px;letter-spacing:-.01em;padding:0 10px 18px}
+.nav-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 12px;border:0;border-radius:10px;background:none;color:var(--muted);font-weight:500}
+.nav-btn svg{width:20px;height:20px;flex:none}
+.nav-btn:hover{background:var(--surface-2);color:var(--ink)}
+.nav-btn[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.side .who{margin-top:auto;padding:12px;color:var(--muted);font-size:14px}
+
+main{padding:32px clamp(16px,4vw,48px) 48px;max-width:980px;width:100%}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+h1{font-size:30px;line-height:1.15;margin:0;letter-spacing:-.02em}
+.sub{color:var(--muted);margin:4px 0 0}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--danger)}
+.btn.small{padding:6px 10px;font-size:14px}
+.btn svg{width:18px;height:18px}
+
+/* schedule */
+.days{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px}
+.day{flex:1 0 auto;min-width:64px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:center;font-weight:600}
+.day small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+.day[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.day[aria-selected="true"] small{color:inherit;opacity:.7}
+.day.today:not([aria-selected="true"]){border-color:var(--accent)}
+.lessons{display:flex;flex-direction:column;gap:10px}
+.lesson{display:grid;grid-template-columns:76px 1fr;gap:14px;align-items:stretch}
+.lesson .t{padding-top:14px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.lesson .t span{display:block;color:var(--muted);font-weight:400;font-size:14px}
+.lesson .card{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:var(--radius);padding:14px 16px}
+.lesson.now .card{box-shadow:0 0 0 2px var(--c)}
+.lesson .name{font-weight:600;font-size:18px}
+.lesson .meta{color:var(--muted);font-size:14px;margin-top:2px}
+.badge{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:99px;background:var(--c);color:#fff;font-size:12px;font-weight:600;vertical-align:2px}
+.empty{padding:40px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--radius)}
+
+/* lists */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.row-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field>span{font-size:13px;color:var(--muted);font-weight:500}
+input[type=text],input[type=time],input[type=date],input[type=number],select,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+input[type=color]{width:100%;height:42px;padding:3px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.grow{flex:1 1 200px}
+.item{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .body{flex:1;min-width:0}
+.item .title{font-weight:500;overflow-wrap:anywhere}
+.item .note{font-size:13px;color:var(--muted)}
+.item.done .title{text-decoration:line-through;color:var(--muted)}
+.item.late .note{color:var(--danger)}
+.chk{width:22px;height:22px;accent-color:var(--ok);flex:none}
+.icon-btn{border:0;background:none;color:var(--muted);padding:6px;border-radius:8px;display:inline-flex}
+.icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+.icon-btn.del:hover{color:var(--danger)}
+.icon-btn svg{width:18px;height:18px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.stat b{display:block;font-size:28px;letter-spacing:-.02em}
+.stat span{color:var(--muted);font-size:14px}
+.grade{min-width:44px;text-align:center;padding:4px 10px;border-radius:8px;background:var(--surface-2);font-weight:700;font-variant-numeric:tabular-nums}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.note-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left}
+.note-card:hover{border-color:var(--ink)}
+.note-card h3{margin:0;font-size:17px}
+.note-card p{margin:0;color:var(--muted);font-size:14px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+
+/* modal */
+dialog{border:0;padding:0;border-radius:18px;background:var(--surface);color:var(--ink);width:min(560px,calc(100% - 24px));max-height:calc(100% - 24px);box-shadow:0 24px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(10,12,8,.55);backdrop-filter:blur(3px)}
+dialog[open]{animation:pop .18s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}}
+.m-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px 8px}
+.m-head h2{margin:0;font-size:20px}
+.m-body{padding:8px 20px 20px;display:flex;flex-direction:column;gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:inline-block;padding:7px 12px;border:1px solid var(--line);border-radius:99px;font-weight:600;font-size:14px;cursor:pointer}
+.chip input:checked+span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.actions{display:flex;gap:8px}
+.mini-list{border-top:1px solid var(--line);padding-top:12px}
+.mini-list h3{margin:0 0 4px;font-size:15px;color:var(--muted);font-weight:600}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+.toast.show{opacity:1}
+
+@media (max-width:760px){
+  .app{grid-template-columns:1fr;padding-bottom:70px}
+  .side{position:fixed;inset:auto 0 0 0;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);z-index:20;gap:2px}
+  .brand,.side .who{display:none}
+  .nav-btn{flex-direction:column;gap:2px;padding:6px 2px;font-size:11px;justify-content:center;align-items:center;text-align:center}
+  .nav-btn[aria-current="page"]{background:var(--surface-2);color:var(--ink)}
+  main{padding-top:max(20px,env(safe-area-inset-top))}
+  h1{font-size:25px}
+  .lesson{grid-template-columns:58px 1fr;gap:10px}
+}
+@media (prefers-reduced-motion:reduce){dialog[open]{animation:none}.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side" aria-label="Розділи">
+    <div class="brand">Student Hub</div>
+    <button class="nav-btn" data-page="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Розклад</button>
+    <button class="nav-btn" data-page="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Завдання</button>
+    <button class="nav-btn" data-page="grades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-5 9 5-9 5-9-5z"/><path d="M7 11.5V16c0 1.5 2.5 3 5 3s5-1.500 5-3v-4.500"/></svg>Оцінки</button>
+    <button class="nav-btn" data-page="notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h10l4 4v14H5z"/><path d="M9 12h6M9 16h6"/></svg>Нотатки</button>
+    <button class="nav-btn" data-page="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.200l2-1.500-2-3.400-2.300 1a7 7 0 0 0-2-1.200L14 3h-4l-.6 2.700a7 7 0 0 0-2 1.200l-2.300-1-2 3.400 2 1.500A7 7 0 0 0 5 12c0 .4 0 .8.100 1.200l-2 1.500 2 3.400 2.300-1a7 7 0 0 0 2 1.200L10 21h4l.6-2.700a7 7 0 0 0 2-1.200l2.300 1 2-3.400-2-1.500c.1-.4.100-.8.100-1.200z"/></svg>Налаштування</button>
+    <div class="who" id="who"></div>
+  </nav>
+  <main id="view"></main>
+</div>
+
+<dialog id="lessonDialog" aria-labelledby="lessonTitle">
+  <div class="m-head">
+    <h2 id="lessonTitle">Редагування розкладу</h2>
+    <button class="icon-btn" id="closeLesson" aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="m-body">
+    <div id="formTitle" style="font-weight:600">Нова пара</div>
+    <div class="grid2">
+      <label class="field"><span>Предмет</span><input type="text" id="fSubject" autocomplete="off"></label>
+      <label class="field"><span>Аудиторія</span><input type="text" id="fRoom" autocomplete="off"></label>
+      <label class="field" style="grid-column:1/-1"><span>Викладач</span><input type="text" id="fTeacher" autocomplete="off"></label>
+      <label class="field"><span>Початок</span><input type="time" id="fStart" value="08:30"></label>
+      <label class="field"><span>Кінець</span><input type="time" id="fEnd" value="09:50"></label>
+    </div>
+    <div class="field"><span>Дні</span><div class="chips" id="fDays"></div></div>
+    <label class="field" style="max-width:160px"><span>Колір</span><input type="color" id="fColor" value="#2f6df6"></label>
+    <div class="actions">
+      <button class="btn primary" id="saveLesson">Зберегти</button>
+      <button class="btn" id="cancelEdit">Скасувати</button>
+    </div>
+    <div class="mini-list">
+      <h3 id="listTitle">Пари цього дня</h3>
+      <div id="miniList"></div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="noteDialog" aria-labelledby="noteDlgTitle">
+  <div class="m-head">
+    <h2 id="noteDlgTitle">Нотатка</h2>
+    <button class="icon-btn" id="closeNote" aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="m-body">
+    <label class="field"><span>Заголовок</span><input type="text" id="nTitle"></label>
+    <label class="field"><span>Текст</span><textarea id="nText" rows="8"></textarea></label>
+    <div class="actions">
+      <button class="btn primary" id="saveNote">Зберегти</button>
+      <button class="btn danger" id="delNote">Видалити</button>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const KEY = 'studenthub.v2';
+  const DAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+  const DAYS_FULL = ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця','Субота','Неділя'];
+  /* ---- Готовий розклад 11-ІТ ---- */
+  const WEEK = [['08:30','09:50'],['10:00','11:20'],['11:30','12:50'],['13:00','14:20']];
+  const SAT  = [['08:00','09:00'],['09:10','10:10'],['10:20','11:20']];
+  const COLORS = {'Фізична культура':'#e8743b','Українська мова':'#d9453d','Біологія, екологія':'#2e9d62','Зарубіжна література':'#a855c7','Історія: Україна і світ':'#8a6a3b','Іноземна мова':'#0ea5b7','Хімія':'#c79a00','Фізика, астрономія':'#2f6df6','Інформатика':'#4c5bd4','Українська література':'#e0577f','Географія':'#5a9a2f','Математика':'#1d4ed8','Захист України':'#5f6b7a'};
+  // [день 0=Пн, номер пари, предмет, викладач]
+  const PLAN = [
+    [1,1,'Фізична культура','Турчик'],[1,2,'Українська мова','Миронюк'],[1,3,'Біологія, екологія','Зіняч'],
+    [2,1,'Хімія','Зіняч'],[2,2,'Фізика, астрономія','Грицик'],[2,3,'Інформатика','Гребіненко'],
+    [3,1,'Зарубіжна література','Ткачук'],[3,2,'Історія: Україна і світ','Коняхін'],[3,3,'Іноземна мова','Музичук'],
+    [4,1,'Українська література','Миронюк'],[4,2,'Захист України','Шмігель'],[4,3,'Математика','Герасимчук'],[4,4,'Фізика, астрономія','Грицик'],
+    [0,1,'Хімія','Зіняч'],[0,2,'Фізика, астрономія','Грицик'],[0,3,'Математика','Герасимчук'],
+    [5,1,'Зарубіжна література','Ткачук'],[5,2,'Історія: Україна і світ','Коняхін'],[5,3,'Іноземна мова','Музичук']
+  ];
+  const SEED = PLAN.map(([d,n,subject,teacher],i)=>{
+    const [start,end] = (d===5?SAT:WEEK)[n-1];
+    return {id:'s'+i, subject, teacher, room:'53', start, end, color:COLORS[subject]||'#2f6df6', days:[d]};
+  });
+  const defaults = {seeded:true,seedVersion:3,lessons:SEED,tasks:[],grades:[],notes:[],settings:{name:'',theme:'light',accent:'#2f6df6'}};
+
+  let state = load();
+  let page = (function(){ try{ return location.hash.slice(1); }catch(e){ return ''; } })() || 'schedule';
+  if(!['schedule','tasks','grades','notes','settings'].includes(page)) page = 'schedule';
+  const todayIdx = (new Date().getDay() + 6) % 7;
+  let selDay = todayIdx;
+  let editingId = null;
+  let editingNote = null;
+
+  const $ = s => document.querySelector(s);
+  const view = $('#view');
+  const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function load(){
+    try{
+      const s = JSON.parse(localStorage.getItem(KEY));
+      if(s){
+        const st = {...structuredClone(defaults), ...s, settings:{...defaults.settings, ...(s.settings||{})}};
+        const untouched = (s.lessons||[]).every(l => /^s\d+$/.test(l.id));
+        if((!s.seeded && !(s.lessons||[]).length) || (s.seedVersion!==3 && untouched)){ st.lessons = structuredClone(SEED); }
+        st.seeded = true; st.seedVersion = 3;
+        return st;
+      }
+    }catch(e){}
+    return structuredClone(defaults);
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ toast('Не вдалося зберегти дані'); } }
+  function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove('show'),1800); }
+
+  function applyTheme(){
+    const r = document.documentElement;
+    r.dataset.theme = state.settings.theme;
+    r.style.setProperty('--accent', state.settings.accent);
+    $('#who').textContent = state.settings.name ? 'Привіт, ' + state.settings.name : '';
+  }
+
+  const icoEdit = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>';
+  const icoDel = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+  const icoPlus = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+
+  /* ---------- routing ---------- */
+  function go(p){ page = p; try{ history.replaceState(null,'','#'+p); }catch(e){} render(); }
+  document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => go(b.dataset.page)));
+
+  function render(){
+    document.querySelectorAll('.nav-btn').forEach(b => b.toggleAttribute('aria-current', b.dataset.page === page) || b.removeAttribute('aria-current'));
+    document.querySelectorAll('.nav-btn').forEach(b => { if(b.dataset.page===page) b.setAttribute('aria-current','page'); });
+    ({schedule:rSchedule,tasks:rTasks,grades:rGrades,notes:rNotes,settings:rSettings}[page] || rSchedule)();
+  }
+
+  /* ---------- schedule ---------- */
+  const toMin = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+  const dayLessons = d => state.lessons.filter(l => l.days.includes(d)).sort((a,b)=>toMin(a.start)-toMin(b.start));
+
+  function rSchedule(){
+    const list = dayLessons(selDay);
+    const now = new Date(); const nowMin = now.getHours()*60+now.getMinutes();
+    view.innerHTML = `
+      <div class="page-head">
+        <div><h1>Розклад</h1><p class="sub">${DAYS_FULL[selDay]}${selDay===todayIdx?' · сьогодні':''}</p></div>
+        <button class="btn primary" id="editSchedule">${icoEdit}Редагувати розклад</button>
+      </div>
+      <div class="days" role="tablist">
+        ${DAYS.map((d,i)=>`<button class="day ${i===todayIdx?'today':''}" role="tab" aria-selected="${i===selDay}" data-d="${i}">${d}<small>${dayLessons(i).length} пар</small></button>`).join('')}
+      </div>
+      <div class="lessons">
+        ${list.length ? list.map(l=>{
+          const live = selDay===todayIdx && nowMin>=toMin(l.start) && nowMin<toMin(l.end);
+          return `<div class="lesson ${live?'now':''}" style="--c:${esc(l.color)}">
+            <div class="t">${esc(l.start)}<span>${esc(l.end)}</span></div>
+            <div class="card"><div class="name">${esc(l.subject)}${live?'<span class="badge">іде зараз</span>':''}</div>
+            <div class="meta">${[l.teacher?esc(l.teacher):'', l.room?'ауд. '+esc(l.room):''].filter(Boolean).join(' · ')||'Без деталей'}</div></div>
+          </div>`;}).join('') : `<div class="empty">На цей день пар немає.<br>Натисни «Редагувати розклад», щоб додати.</div>`}
+      </div>`;
+    view.querySelectorAll('.day').forEach(b => b.addEventListener('click', () => { selDay = +b.dataset.d; rSchedule(); }));
+    $('#editSchedule').addEventListener('click', openLessonDialog);
+  }
+
+  /* schedule modal */
+  const ld = $('#lessonDialog');
+  function buildDayChips(selected){
+    $('#fDays').innerHTML = DAYS.map((d,i)=>`<label class="chip"><input type="checkbox" value="${i}" ${selected.includes(i)?'checked':''}><span>${d}</span></label>`).join('');
+  }
+  function resetForm(){
+    editingId = null;
+    $('#formTitle').textContent = 'Нова пара';
+    $('#fSubject').value=''; $('#fRoom').value='53'; $('#fTeacher').value='';
+    $('#fStart').value='08:30'; $('#fEnd').value='09:50';
+    $('#fColor').value = state.settings.accent;
+    buildDayChips([selDay]);
+  }
+  function renderMini(){
+    const list = dayLessons(selDay);
+    $('#listTitle').textContent = 'Пари: ' + DAYS_FULL[selDay].toLowerCase();
+    $('#miniList').innerHTML = list.length ? list.map(l=>`
+      <div class="item" style="--c:${esc(l.color)}">
+        <span class="dot"></span>
+        <div class="body"><div class="title">${esc(l.subject)}</div><div class="note">${esc(l.start)}–${esc(l.end)}${l.teacher?' · '+esc(l.teacher):''}${l.room?' · ауд. '+esc(l.room):''}</div></div>
+        <button class="icon-btn" data-edit="${l.id}" aria-label="Змінити">${icoEdit}</button>
+        <button class="icon-btn del" data-del="${l.id}" aria-label="Видалити">${icoDel}</button>
+      </div>`).join('') : '<div class="note" style="color:var(--muted);padding:8px 0">Поки порожньо.</div>';
+    $('#miniList').querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>startEdit(b.dataset.edit)));
+    $('#miniList').querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
+      state.lessons = state.lessons.filter(l=>l.id!==b.dataset.del);
+      if(editingId===b.dataset.del) resetForm();
+      save(); renderMini(); rSchedule(); toast('Пару видалено');
+    }));
+  }
+  function startEdit(id){
+    const l = state.lessons.find(x=>x.id===id); if(!l) return;
+    editingId = id;
+    $('#formTitle').textContent = 'Змінити пару';
+    $('#fSubject').value=l.subject; $('#fRoom').value=l.room; $('#fTeacher').value=l.teacher||'';
+    $('#fStart').value=l.start; $('#fEnd').value=l.end; $('#fColor').value=l.color;
+    buildDayChips(l.days);
+    $('#fSubject').focus();
+  }
+  function openLessonDialog(){ resetForm(); renderMini(); ld.showModal(); }
+  $('#closeLesson').addEventListener('click', ()=>ld.close());
+  $('#cancelEdit').addEventListener('click', resetForm);
+  ld.addEventListener('click', e => { if(e.target===ld) ld.close(); });
+  $('#saveLesson').addEventListener('click', () => {
+    const subject = $('#fSubject').value.trim();
+    const days = [...$('#fDays').querySelectorAll('input:checked')].map(i=>+i.value);
+    const start = $('#fStart').value, end = $('#fEnd').value;
+    if(!subject){ toast('Вкажи назву предмета'); $('#fSubject').focus(); return; }
+    if(!days.length){ toast('Обери хоча б один день'); return; }
+    if(!start || !end || toMin(end) <= toMin(start)){ toast('Кінець має бути пізніше за початок'); return; }
+    const data = {subject, room:$('#fRoom').value.trim(), teacher:$('#fTeacher').value.trim(), start, end, color:$('#fColor').value, days};
+    if(editingId){ Object.assign(state.lessons.find(l=>l.id===editingId), data); }
+    else state.lessons.push({id:uid(), ...data});
+    save(); toast(editingId ? 'Пару змінено' : 'Пару додано');
+    resetForm(); renderMini(); rSchedule();
+  });
+
+  /* ---------- tasks ---------- */
+  function rTasks(){
+    const open = state.tasks.filter(t=>!t.done).length;
+    const sorted = [...state.tasks].sort((a,b)=> a.done-b.done || (a.due||'9').localeCompare(b.due||'9'));
+    const today = new Date().toISOString().slice(0,10);
+    view.innerHTML = `
+      <div class="page-head"><div><h1>Завдання</h1><p class="sub">${open ? 'Залишилось: '+open : 'Усе зроблено'}</p></div></div>
+      <div class="panel">
+        <form class="row-form" id="taskForm">
+          <input type="text" class="grow" id="tText" placeholder="Що потрібно зробити?" aria-label="Завдання" required>
+          <input type="date" id="tDue" aria-label="Термін" style="width:auto">
+          <button class="btn primary" type="submit">${icoPlus}Додати</button>
+        </form>
+        <div>${sorted.length ? sorted.map(t=>`
+          <div class="item ${t.done?'done':''} ${!t.done&&t.due&&t.due<today?'late':''}">
+            <input type="checkbox" class="chk" data-id="${t.id}" ${t.done?'checked':''} aria-label="Виконано">
+            <div class="body"><div class="title">${esc(t.text)}</div>${t.due?`<div class="note">${!t.done&&t.due<today?'Прострочено · ':'До '}${t.due.split('-').reverse().join('.')}</div>`:''}</div>
+            <button class="icon-btn del" data-del="${t.id}" aria-label="Видалити">${icoDel}</button>
+          </div>`).join('') : '<div class="empty">Завдань поки немає.</div>'}</div>
+      </div>`;
+    $('#taskForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const text = $('#tText').value.trim(); if(!text) return;
+      state.tasks.push({id:uid(), text, due:$('#tDue').value, done:false});
+      save(); rTasks();
+    });
+    view.querySelectorAll('.chk').forEach(c=>c.addEventListener('change',()=>{ state.tasks.find(t=>t.id===c.dataset.id).done = c.checked; save(); rTasks(); }));
+    view.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{ state.tasks = state.tasks.filter(t=>t.id!==b.dataset.del); save(); rTasks(); }));
+  }
+
+  /* ---------- grades ---------- */
+  function rGrades(){
+    const g = state.grades;
+    const avg = a => a.length ? (a.reduce((s,x)=>s+x.value,0)/a.length) : null;
+    const bySubj = {};
+    g.forEach(x => (bySubj[x.subject] ||= []).push(x));
+    const total = avg(g);
+    view.innerHTML = `
+      <div class="page-head"><div><h1>Оцінки</h1><p class="sub">Середній бал по предметах</p></div></div>
+      <div class="stats">
+        <div class="stat"><b>${total===null?'—':total.toFixed(1)}</b><span>Загальний середній</span></div>
+        <div class="stat"><b>${g.length}</b><span>Усього оцінок</span></div>
+        <div class="stat"><b>${Object.keys(bySubj).length}</b><span>Предметів</span></div>
+      </div>
+      <div class="panel">
+        <form class="row-form" id="gForm">
+          <input type="text" class="grow" id="gSubj" list="subjList" placeholder="Предмет" aria-label="Предмет" required>
+          <datalist id="subjList">${[...new Set([...state.lessons.map(l=>l.subject),...Object.keys(bySubj)])].map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+          <input type="number" id="gVal" min="0" max="100" step="0.5" placeholder="Оцінка" aria-label="Оцінка" style="width:110px" required>
+          <button class="btn primary" type="submit">${icoPlus}Додати</button>
+        </form>
+        ${Object.keys(bySubj).length ? Object.entries(bySubj).map(([s,arr])=>`
+          <div class="item"><div class="body"><div class="title">${esc(s)}</div>
+            <div class="note">${arr.map((x,i)=>`<button class="icon-btn" style="padding:0 4px;font-size:13px" data-del="${x.id}" title="Видалити оцінку">${esc(x.value)}</button>`).join(' ')}</div></div>
+            <span class="grade">${avg(arr).toFixed(1)}</span></div>`).join('') : '<div class="empty">Додай першу оцінку.</div>'}
+      </div>
+      ${g.length?'<p class="sub" style="margin-top:10px;font-size:13px">Щоб видалити оцінку, натисни на неї.</p>':''}`;
+    $('#gForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const subject = $('#gSubj').value.trim(), value = parseFloat($('#gVal').value);
+      if(!subject || isNaN(value)) return;
+      state.grades.push({id:uid(), subject, value}); save(); rGrades();
+    });
+    view.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{ state.grades = state.grades.filter(x=>x.id!==b.dataset.del); save(); rGrades(); }));
+  }
+
+  /* ---------- notes ---------- */
+  const nd = $('#noteDialog');
+  function rNotes(){
+    view.innerHTML = `
+      <div class="page-head"><div><h1>Нотатки</h1><p class="sub">${state.notes.length} шт.</p></div>
+        <button class="btn primary" id="newNote">${icoPlus}Нова нотатка</button></div>
+      ${state.notes.length ? `<div class="notes">${state.notes.map(n=>`<button class="note-card" data-id="${n.id}"><h3>${esc(n.title||'Без назви')}</h3><p>${esc(n.text)}</p></button>`).join('')}</div>` : '<div class="empty">Нотаток поки немає.</div>'}`;
+    $('#newNote').addEventListener('click', () => openNote(null));
+    view.querySelectorAll('.note-card').forEach(c=>c.addEventListener('click',()=>openNote(c.dataset.id)));
+  }
+  function openNote(id){
+    editingNote = id;
+    const n = state.notes.find(x=>x.id===id);
+    $('#nTitle').value = n?n.title:''; $('#nText').value = n?n.text:'';
+    $('#delNote').style.display = n ? '' : 'none';
+    nd.showModal(); $('#nTitle').focus();
+  }
+  $('#closeNote').addEventListener('click',()=>nd.close());
+  nd.addEventListener('click', e => { if(e.target===nd) nd.close(); });
+  $('#saveNote').addEventListener('click', () => {
+    const title = $('#nTitle').value.trim(), text = $('#nText').value;
+    if(!title && !text.trim()){ nd.close(); return; }
+    if(editingNote) Object.assign(state.notes.find(n=>n.id===editingNote), {title,text});
+    else state.notes.unshift({id:uid(), title, text});
+    save(); nd.close(); rNotes();
+  });
+  $('#delNote').addEventListener('click', () => { state.notes = state.notes.filter(n=>n.id!==editingNote); save(); nd.close(); rNotes(); });
+
+  /* ---------- settings ---------- */
+  function rSettings(){
+    const s = state.settings;
+    view.innerHTML = `
+      <div class="page-head"><div><h1>Налаштування</h1></div></div>
+      <div class="panel" style="display:flex;flex-direction:column;gap:16px;max-width:520px">
+        <label class="field"><span>Імʼя</span><input type="text" id="sName" value="${esc(s.name)}" placeholder="Як до тебе звертатись?"></label>
+        <label class="field"><span>Тема</span>
+          <select id="sTheme"><option value="light" ${s.theme==='light'?'selected':''}>Світла</option><option value="dark" ${s.theme==='dark'?'selected':''}>Темна</option></select></label>
+        <label class="field" style="max-width:160px"><span>Акцентний колір</span><input type="color" id="sAccent" value="${esc(s.accent)}"></label>
+        <div class="actions" style="flex-wrap:wrap">
+          <button class="btn" id="exp">Експортувати дані</button>
+          <label class="btn" style="cursor:pointer">Імпортувати<input type="file" id="imp" accept="application/json" hidden></label>
+          <button class="btn danger" id="reset">Скинути до початкових</button>
+        </div>
+      </div>`;
+    $('#sName').addEventListener('input', e => { state.settings.name = e.target.value; save(); applyTheme(); });
+    $('#sTheme').addEventListener('change', e => { state.settings.theme = e.target.value; save(); applyTheme(); });
+    $('#sAccent').addEventListener('input', e => { state.settings.accent = e.target.value; save(); applyTheme(); });
+    $('#exp').addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));
+      a.download = 'student-hub.json'; a.click(); URL.revokeObjectURL(a.href);
+    });
+    $('#imp').addEventListener('change', e => {
+      const f = e.target.files[0]; if(!f) return;
+      const r = new FileReader();
+      r.onload = () => { try{ const d = JSON.parse(r.result); state = {...defaults, ...d, settings:{...defaults.settings,...(d.settings||{})}}; save(); applyTheme(); toast('Дані імпортовано'); render(); }catch(err){ toast('Файл не підходить'); } };
+      r.readAsText(f);
+    });
+    $('#reset').addEventListener('click', () => { if(confirm('Скинути все до початкового розкладу? Твої зміни, завдання, оцінки й нотатки зникнуть.')){ state = structuredClone(defaults); save(); applyTheme(); render(); } });
+  }
+
+  applyTheme();
+  render();
+  setInterval(() => { if(page==='schedule' && !ld.open) rSchedule(); }, 60000);
+})();
+</script>
+</body>
+</html>
